@@ -6,8 +6,8 @@ import type { UserInfoShort } from "../Interfaces/UserInfoShort";
 
 export const UserList = () => {
     const [users, setUsers] = useState<UserInfo[]>([])
-    const [searchedUser, setSearchedUser] = useState<UserInfo>()
-    const [searchedUserSurname, setSearchedUserSurname] = useState("")
+    const [foundUsers, setFoundUsers] = useState<UserInfo[]>([])
+    const [searchedSurname, setSearchedSurname] = useState("")
     const [isSearching, setIsSearching] = useState(false)
     let counter = useRef(0)
 
@@ -23,29 +23,38 @@ export const UserList = () => {
     }
 
     const findUser = (surname: string) => {
-        return users.filter(user => user.surname === surname)[0]
+        return users.filter(user => user.surname.toLowerCase().includes(surname.toLowerCase()))
     }
 
     return <div>
         <UserForm handleSubmit={addUser}/>
-        <input type="text" placeholder="Search by surname" value={searchedUserSurname} onChange={(e) => setSearchedUserSurname(e.target.value)}/>
+        <input type="text" placeholder="Search by surname" value={searchedSurname} onChange={(e) => setSearchedSurname(e.target.value)}/>
         <button type="submit" onClick={() => {
-            setIsSearching(!isSearching)
-            if (isSearching) {
-                setSearchedUser(findUser(searchedUserSurname))
+            if (!isSearching) {
+                setFoundUsers(findUser(searchedSurname))
             }
+            setIsSearching(!isSearching)
         }}>{isSearching ? "Stop Searching" : "Search"}</button>
-        {isSearching ? <User name={sea}/> : <ul>
-            {users.map(user => <User 
-                id={user.id}
-                key={user.key} 
-                name={user.name} 
-                surname={user.surname} 
-                email={user.email} 
-                phone={user.phone}
-                onDelete={deleteUser}
-            />)}
-        </ul>}
+        {isSearching ?
+        foundUsers.map(user => <User 
+            id={user.id}
+            key={user.key} 
+            name={user.name} 
+            surname={user.surname} 
+            email={user.email} 
+            phone={user.phone}
+            onDelete={deleteUser}
+        />)
+        : 
+        users.map(user => <User 
+            id={user.id}
+            key={user.key} 
+            name={user.name} 
+            surname={user.surname} 
+            email={user.email} 
+            phone={user.phone}
+            onDelete={deleteUser}
+        />)}
 
     </div>
 }
